@@ -32,20 +32,47 @@
 
     <!-- Modernizer js -->
     <script src="{{ asset('frontend/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+
+    @yield('style')
 </head>
 <body>
     <div id="app">
-        <!-- Main wrapper -->
-	    <div class="wrapper" id="wrapper">
+        <div class="wrapper" id="wrapper">
+
             @include('partial.frontend.header')
+
             <main>
-                @yield('content')
+                <div class="page-blog-details section-padding--lg bg--white">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                @include('partial.flash')
+                            </div>
+                            @yield('content')
+                        </div>
+                    </div>
+                </div>
             </main>
+
             @include('partial.frontend.footer')
+
         </div>
     </div>
+
+    <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('frontend/js/plugins.js') }}"></script>
     <script src="{{ asset('frontend/js/active.js') }}"></script>
+
+    <script src="{{ asset('frontend/js/bootstrap-fileinput/js/plugins/piexif.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/bootstrap-fileinput/js/plugins/sortable.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/bootstrap-fileinput/js/plugins/purify.min.js') }}"></script>
+
+    <script src="{{ asset('frontend/js/bootstrap-fileinput/js/fileinput.min.js') }}"></script>
+    <script src="{{ asset('frontend/js/bootstrap-fileinput/themes/fa/theme.js') }}"></script>
+
+
+    <script src="{{ asset('frontend/js/custom.js') }}"></script>
+    @yield('script')
 </body>
 </html>
