@@ -38,7 +38,7 @@ class IndexController extends Controller
         });
 
         if ($keyword != null) {
-            $post = $posts->search($keyword, null, true);
+            $posts = $posts->search($keyword, null, true);
         }
 
         $posts = $posts->wherePostType('post')->whereStatus(1)->orderby('id', 'desc')->paginate(5);
