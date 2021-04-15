@@ -6,6 +6,7 @@
         </button>
     </div>
 @endif
+
 @if (session('status'))
     <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-message">
         {{ session('status') }}

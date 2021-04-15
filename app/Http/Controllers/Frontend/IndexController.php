@@ -3,20 +3,25 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Stevebauman\Purify\Facades\Purify;
+
 
 class IndexController extends Controller
 {
-    public function index(){
+    public function index()
+    {
 
         $posts = Post::with(['category', 'media', 'user'])
-            ->whereHas('category', function($query){
+            ->whereHas('category', function ($query) {
                 $query->whereStatus(1);
             })
-            ->whereHas('user', function($query){
+            ->whereHas('user', function ($query) {
                 $query->whereStatus(1);
             })
             ->wherePostType('post')->whereStatus(1)->orderby('id', 'desc')->paginate(5);
@@ -25,17 +30,18 @@ class IndexController extends Controller
         return view('frontend.index', compact('posts'));
     }
 
-    public function search(Request $request){
+    public function search(Request $request)
+    {
 
         $keyword = isset($request->keyword) && $request->keyword != '' ? $request->keyword : null;
 
         $posts = Post::with(['category', 'media', 'user'])
-        ->whereHas('category', function($query){
-            $query->whereStatus(1);
-        })
-        ->whereHas('user', function($query){
-            $query->whereStatus(1);
-        });
+            ->whereHas('category', function ($query) {
+                $query->whereStatus(1);
+            })
+            ->whereHas('user', function ($query) {
+                $query->whereStatus(1);
+            });
 
         if ($keyword != null) {
             $posts = $posts->search($keyword, null, true);
@@ -44,20 +50,76 @@ class IndexController extends Controller
         $posts = $posts->wherePostType('post')->whereStatus(1)->orderby('id', 'desc')->paginate(5);
 
         return view('frontend.index', compact('posts'));
+    }
 
+    public function category($slug)
+    {
+        $category = Category::whereSlug($slug)->orWhere('id', $slug)->whereStatus(1)->first()->id;
+
+        if ($category) {
+            $posts = Post::with(['category', 'media', 'user'])
+                ->withCount('approved_comments')
+                ->whereCategoryId($category)
+                ->wherePostType('post')
+                ->whereStatus(1)
+                ->orderby('id', 'desc')
+                ->paginate(5);
+
+            return view('frontend.index', compact('posts'));
+        }
+
+        return redirect()->route('frontend.index');
+    }
+
+    public function archive($date)
+    {
+        $exploded_date = explode('-', $date);
+        $month = $exploded_date[0];
+        $year = $exploded_date[1];
+
+        $posts = Post::with(['category', 'media', 'user'])
+            ->withCount('approved_comments')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->wherePostType('post')
+            ->whereStatus(1)
+            ->orderby('id', 'desc')
+            ->paginate(5);
+
+        return view('frontend.index', compact('posts'));
+    }
+
+    public function author($username)
+    {
+        $user = User::whereUsername($username)->whereStatus(1)->first()->id;
+
+        if ($user) {
+            $posts = Post::with(['category', 'media', 'user'])
+                ->withCount('approved_comments')
+                ->whereUserId($user)
+                ->wherePostType('post')
+                ->whereStatus(1)
+                ->orderby('id', 'desc')
+                ->paginate(5);
+
+            return view('frontend.index', compact('posts'));
+        }
+
+        return redirect()->route('frontend.index');
     }
 
     public function post_show($slug)
     {
-        $post = Post::with(['category', 'media', 'user',
-            'approved_comments' => function($query) {
+        $post = Post::with([
+            'category', 'media', 'user',
+            'approved_comments' => function ($query) {
                 $query->orderBy('id', 'desc');
             }
         ]);
 
         $post = $post->whereHas('category', function ($query) {
-                $query->whereStatus(1);
-            })
+            $query->whereStatus(1);
+        })
             ->whereHas('user', function ($query) {
                 $query->whereStatus(1);
             });
@@ -65,7 +127,7 @@ class IndexController extends Controller
         $post = $post->whereSlug($slug);
         $post = $post->whereStatus(1)->first();
 
-        if($post) {
+        if ($post) {
 
             $blade = $post->post_type == 'post' ? 'post' : 'page';
 
@@ -73,9 +135,9 @@ class IndexController extends Controller
         } else {
             return redirect()->route('frontend.index');
         }
-
     }
-    public function store_comment(Request $request, $slug){
+    public function store_comment(Request $request, $slug)
+    {
 
         $validation = Validator::make($request->all(), [
             'name' => 'required',
@@ -97,7 +159,7 @@ class IndexController extends Controller
             $data['email']          = $request->email;
             $data['url']            = $request->url;
             $data['ip_address']     = $request->ip();
-            $data['comment']        = $request->comment;
+            $data['comment']        = Purify::clean($request->comment);
             $data['post_id']        = $request->post_id;
             $data['user_id']        = $userId;
 
@@ -116,11 +178,13 @@ class IndexController extends Controller
         ]);
     }
 
-    public function contact(){
+    public function contact()
+    {
         return view('frontend.contact');
     }
 
-    public function do_contact(Request $request){
+    public function do_contact(Request $request)
+    {
 
         $validation = Validator::make($request->all(), [
             'name'      => 'required',
@@ -130,7 +194,7 @@ class IndexController extends Controller
             'message'   => 'required|min:10',
         ]);
 
-        if ($validation->fails()){
+        if ($validation->fails()) {
             return redirect()->back()->withErrors($validation)->withInput();
         }
 
@@ -146,6 +210,5 @@ class IndexController extends Controller
             'message' => 'Message sent successfully',
             'alert-type' => 'success'
         ]);
-
     }
 }

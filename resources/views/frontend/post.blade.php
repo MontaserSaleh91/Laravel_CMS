@@ -37,7 +37,7 @@
                         <div class="blog-date-categori">
                             <ul>
                                 <li>{{ $post->created_at->format('M d, Y') }}</li>
-                                <li><a href="#" title="Posts by {{ $post->user->name }}" rel="author">{{ $post->user->name }}</a></li>
+                                <li><a href="{{ route('frontend.author.posts', $post->user->username) }}" title="Posts by {{ $post->user->name }}" rel="author">{{ $post->user->name }}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -48,7 +48,7 @@
                     <ul class="blog_meta">
                         <li><a href="#">{{ $post->approved_comments->count() }} comment(s)</a></li>
                         <li> / </li>
-                        <li>Category:<span>{{ $post->category->name }}</span></li>
+                        <li>Category : <span>{{ $post->category->name }}</span></li>
                     </ul>
                 </div>
             </article>

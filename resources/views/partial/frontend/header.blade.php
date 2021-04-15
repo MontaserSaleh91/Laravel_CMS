@@ -16,20 +16,20 @@
                         <li class="drop with--one--item"><a href="{{ route('posts.show', 'about-us') }}">About Us</a></li>
                         <li class="drop with--one--item"><a href="{{ route('posts.show', 'our-vision') }}">Our Vision</a></li>
                         <li class="drop"><a href="javascript:void(0);">Blog</a>
-                            {{-- <div class="megamenu dropdown">
+                            <div class="megamenu dropdown">
                                 <ul class="item item01">
                                     @foreach($global_categories as $global_category)
                                         <li><a href="{{ route('frontend.category.posts', $global_category->slug) }}">{{ $global_category->name }}</a></li>
                                     @endforeach
                                 </ul>
-                            </div> --}}
+                            </div>
                         </li>
                         <li><a href="{{ route('frontend.contact') }}">Contact</a></li>
                     </ul>
                 </nav>
             </div>
 
-            {{-- <div class="col-md-8 col-sm-8 col-5 col-lg-2">
+            <div class="col-md-8 col-sm-8 col-5 col-lg-2">
                 <ul class="header__sidebar__right d-flex justify-content-end align-items-center">
                     <li class="shop_search"><a class="search__active" href="#"></a></li>
 
@@ -63,7 +63,7 @@
                         </div>
                     </li>
                 </ul>
-            </div> --}}
+            </div>
         </div>
 
         <!-- Start Mobile Menu -->

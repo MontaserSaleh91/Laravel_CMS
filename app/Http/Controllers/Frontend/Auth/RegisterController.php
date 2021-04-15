@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -43,6 +44,12 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    public function showRegistrationForm()
+    {
+        return view('frontend.auth.register');
+    }
+
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -55,9 +62,9 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'mobile' => ['required', 'string', 'unique:users'],
+            'mobile' => ['required', 'numeric', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'user_image' => ['nullable', 'image', 'max20000', 'mimes:jpeg,jpg,png']
+            'user_image' => ['nullable', 'image', 'max:20000', 'mimes:jpeg,jpg,png'],
         ]);
     }
 
@@ -75,7 +82,6 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'mobile' => $data['mobile'],
             'password' => Hash::make($data['password']),
-            'user_image' => ['nullable', 'image', 'max:20000', 'mimes:jpeg,jpg,png'],
         ]);
 
         if (isset($data['user_image'])) {
@@ -88,10 +94,17 @@ class RegisterController extends Controller
                 $user->update(['user_image' => $filename]);
             }
         }
+
+        return $user;
+
     }
 
-    public function showRegistrationForm()
+    protected function registered(Request $request, $user)
     {
-        return view('frontend.auth.register');
+        return redirect()->route('frontend.index')->with([
+            'message' => 'Your account registered successfully, Please check your email to activate your account.',
+            'alert-type' => 'success'
+        ]);
     }
+
 }
